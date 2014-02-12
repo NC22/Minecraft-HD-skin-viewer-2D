@@ -1,4 +1,17 @@
-Minecraft-HD-skin-viewer-2D
+# Minecraft skin viewer-2D
 ===========================
 
-PHP viewer for minecraft skins; generate images of front \ rare \ head view of skin; Support cloaks and HD images
+PHP class - viewer for minecraft skins; generate images of front \ rare \ head view of skin; Support cloaks and HD images
+
+Require GD module
+
+ - **Author** : NC22
+ - **Version** : 1.0
+ 
+## Information
+
+Look 'selftest' dirrectory for examples. 
+ 
+## License 
+
+ [GNU General Public License v3](http://www.gnu.org/licenses/gpl.html) 
