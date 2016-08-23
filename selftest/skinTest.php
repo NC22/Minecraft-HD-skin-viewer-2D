@@ -7,7 +7,8 @@ if (isset($_GET['show'])) {
     header("Content-type: image/png");
 
     $show = $_GET['show'];
-    $skin = isset($_GET['hd']) ? './hd.png' : './skin.png';
+    $mode =  empty($_GET['mode']) ? 'skin' : $_GET['mode'];
+    $skin = './' . $mode . '.png';
     if ($show !== 'head') {
         $cloak = isset($_GET['cloak']) ? (($_GET['cloak'] === 'hd') ? './hd_cloak.png' : './cloak.png') : false;
         $side = isset($_GET['side']) ? $_GET['side'] : false;
@@ -32,21 +33,27 @@ if (isset($_GET['show'])) {
         <img src="skinTest.php?show=body&cloak=yes" />
     </p>
     <p>
-        <img src="skinTest.php?show=head&hd=yes" />
-        <img src="skinTest.php?show=body&side=front&hd=yes" />
-        <img src="skinTest.php?show=body&side=back&hd=yes" />
-        <img src="skinTest.php?show=body&hd=yes" />
-        <img src="skinTest.php?show=body&side=front&cloak=yes&hd=yes" />
-        <img src="skinTest.php?show=body&side=back&cloak=yes&hd=yes" />
-        <img src="skinTest.php?show=body&cloak=yes&hd=yes" />    
+        <img src="skinTest.php?show=head&mode=hd" />
+        <img src="skinTest.php?show=body&side=front&mode=hd" />
+        <img src="skinTest.php?show=body&side=back&mode=hd" />
+        <img src="skinTest.php?show=body&mode=hd" />
+        <img src="skinTest.php?show=body&side=front&cloak=yes&mode=hd" />
+        <img src="skinTest.php?show=body&side=back&cloak=yes&mode=hd" />
+        <img src="skinTest.php?show=body&cloak=yes&mode=hd" />    
     </p>
     <p>
         <img src="skinTest.php?show=body&side=front&cloak=hd" />
         <img src="skinTest.php?show=body&side=back&cloak=hd" />
         <img src="skinTest.php?show=body&cloak=hd" />
-        <img src="skinTest.php?show=body&side=front&cloak=hd&hd=yes" />
-        <img src="skinTest.php?show=body&side=back&cloak=hd&hd=yes" />
-        <img src="skinTest.php?show=body&cloak=hd&hd=yes" /> 
-    </p>        
+        <img src="skinTest.php?show=body&side=front&cloak=hd&mode=hd" />
+        <img src="skinTest.php?show=body&side=back&cloak=hd&mode=hd" />
+        <img src="skinTest.php?show=body&cloak=hd&mode=hd" /> 
+    </p> 
+    <p>
+        <img src="skinTest.php?show=body&side=front&cloak=hd&mode=skin64" />
+        <img src="skinTest.php?show=body&side=back&cloak=hd&mode=skin64" />
+        <img src="skinTest.php?show=body&cloak=hd&mode=skin64" />
+        <img src="skinTest.php?show=body&mode=skin64" />
+    </p>    
 <?php } ?>
     

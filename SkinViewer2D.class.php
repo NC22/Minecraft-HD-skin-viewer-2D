@@ -3,8 +3,8 @@
  * @category  MineCraft tools
  * @package   webMCR
  * @author    Rubchuk Vladimir <torrenttvi@gmail.com>
- * @copyright 2013-2014 Rubchuk Vladimir
- * @version 1.0
+ * @copyright 2013-2016 Rubchuk Vladimir
+ * @version   1.2b
  * @license   GPLv3
  */
 
@@ -12,9 +12,11 @@ class SkinViewer2D
 {
     /* Допустимые пропорции образа */
 
-    const SKIN_BASE = 64;
-    const SKIN_PROP = 2; // 64 / 32 
-
+    private static $skinProps = array(
+        0 => array('base' => 64, 'ratio' => 2),
+        1 => array('base' => 64, 'ratio' => 1),
+    );
+    
     /*
      * Массив допустимых пропорций плаща (для плаща в MC нет четкой привязки к размеру) 
      * Некоторые плащи используют соотношение 22x17, тогда как обычно используется 
@@ -37,18 +39,21 @@ class SkinViewer2D
     {
         if (!$info = self::isValidSkin($way_skin))
             return false;
-
-        $im = @imagecreatefrompng($way_skin);
-        if (!$im)
+            
+        $img = @imagecreatefrompng($way_skin);
+        if (!$img)
             return false;
-
+            
+        $p = array('face' => array(8, 8), 'hat' => array(40, 8));  
+        
+        
         $av = imagecreatetruecolor($size, $size);
         $mp = $info['scale'];
 
-        imagecopyresized($av, $im, 0, 0, 8 * $mp, 8 * $mp, $size, $size, 8 * $mp, 8 * $mp);
-        imagecopyresized($av, $im, 0, 0, 40 * $mp, 8 * $mp, $size, $size, 8 * $mp, 8 * $mp);
-        imagedestroy($im);
-
+        imagecopyresized($av, $img, 0, 0, $p['face'][0] * $mp, $p['face'][1] * $mp, $size, $size, 8 * $mp, 8 * $mp);
+        imagecopyresized($av, $img, 0, 0, $p['hat'][0] * $mp, $p['hat'][1] * $mp, $size, $size, 8 * $mp, 8 * $mp);
+        imagedestroy($img);   
+        
         return $av;
     }
 
@@ -73,30 +78,102 @@ class SkinViewer2D
         $mp = $info['scale'];
         $size_x = (($side) ? 16 : 32);
         $preview = imagecreatetruecolor($size_x * $mp, 32 * $mp);
-        $mp_x_h = ($side) ? 0 : imagesx($preview) / 2;
-
+        
         $transparent = imagecolorallocatealpha($preview, 255, 255, 255, 127);
         imagefill($preview, 0, 0, $transparent);
 
         if (!$side or $side === 'front') {
 
+            // head
             imagecopy($preview, $skin, 4 * $mp, 0 * $mp, 8 * $mp, 8 * $mp, 8 * $mp, 8 * $mp);
-            imagecopy($preview, $skin, 0 * $mp, 8 * $mp, 44 * $mp, 20 * $mp, 4 * $mp, 12 * $mp);
-            self::imageflip($preview, $skin, 12 * $mp, 8 * $mp, 44 * $mp, 20 * $mp, 4 * $mp, 12 * $mp);
-            imagecopy($preview, $skin, 4 * $mp, 8 * $mp, 20 * $mp, 20 * $mp, 8 * $mp, 12 * $mp);
-            imagecopy($preview, $skin, 4 * $mp, 20 * $mp, 4 * $mp, 20 * $mp, 4 * $mp, 12 * $mp);
-            self::imageflip($preview, $skin, 8 * $mp, 20 * $mp, 4 * $mp, 20 * $mp, 4 * $mp, 12 * $mp);
             imagecopy($preview, $skin, 4 * $mp, 0 * $mp, 40 * $mp, 8 * $mp, 8 * $mp, 8 * $mp);
+            
+            // front arms
+            imagecopy($preview, $skin, 0 * $mp, 8 * $mp, 44 * $mp, 20 * $mp, 4 * $mp, 12 * $mp);
+            
+            if ($info['ratio'] == 2) {
+                self::imageflip($preview, $skin, 12 * $mp, 8 * $mp, 44 * $mp, 20 * $mp, 4 * $mp, 12 * $mp);
+            } else {
+                imagecopy($preview, $skin, 12 * $mp, 8 * $mp, 36 * $mp, 52 * $mp, 4 * $mp, 12 * $mp);
+            }
+            
+            // body
+            imagecopy($preview, $skin, 4 * $mp, 8 * $mp, 20 * $mp, 20 * $mp, 8 * $mp, 12 * $mp);
+            
+            // front legs
+            imagecopy($preview, $skin, 4 * $mp, 20 * $mp, 4 * $mp, 20 * $mp, 4 * $mp, 12 * $mp);
+            
+            if ($info['ratio'] == 2) {
+                self::imageflip($preview, $skin, 8 * $mp, 20 * $mp, 4 * $mp, 20 * $mp, 4 * $mp, 12 * $mp);
+            } else {
+                imagecopy($preview, $skin, 8 * $mp, 20 * $mp, 20 * $mp, 52 * $mp, 4 * $mp, 12 * $mp);
+            }
+            
+            if ($info['ratio'] == 1) {
+                // front arms layer 2 right
+                imagecopy($preview, $skin, 0 * $mp, 8 * $mp, 44 * $mp, 36 * $mp, 4 * $mp, 12 * $mp);
+                // left
+                imagecopy($preview, $skin, 12 * $mp, 8 * $mp, 52 * $mp, 52 * $mp, 4 * $mp, 12 * $mp);
+                
+                // jacket
+                imagecopy($preview, $skin, 4 * $mp, 8 * $mp, 20 * $mp, 20 * $mp, 8 * $mp, 12 * $mp);
+                
+                // front legs right leg layer 2 
+                imagecopy($preview, $skin, 4 * $mp, 20 * $mp, 4 * $mp, 36 * $mp, 4 * $mp, 12 * $mp);    
+                // front legs  left leg layer 2 
+                imagecopy($preview, $skin, 8 * $mp, 20 * $mp, 4 * $mp, 52 * $mp, 4 * $mp, 12 * $mp);    
+            }
+            
         }
         if (!$side or $side === 'back') {
-
-            imagecopy($preview, $skin, $mp_x_h + 4 * $mp, 8 * $mp, 32 * $mp, 20 * $mp, 8 * $mp, 12 * $mp);
+        
+            $mp_x_h = ($side) ? 0 : imagesx($preview) / 2;    
+            
+            // head
             imagecopy($preview, $skin, $mp_x_h + 4 * $mp, 0 * $mp, 24 * $mp, 8 * $mp, 8 * $mp, 8 * $mp);
-            self::imageflip($preview, $skin, $mp_x_h + 0 * $mp, 8 * $mp, 52 * $mp, 20 * $mp, 4 * $mp, 12 * $mp);
-            imagecopy($preview, $skin, $mp_x_h + 12 * $mp, 8 * $mp, 52 * $mp, 20 * $mp, 4 * $mp, 12 * $mp);
-            self::imageflip($preview, $skin, $mp_x_h + 4 * $mp, 20 * $mp, 12 * $mp, 20 * $mp, 4 * $mp, 12 * $mp);
-            imagecopy($preview, $skin, $mp_x_h + 8 * $mp, 20 * $mp, 12 * $mp, 20 * $mp, 4 * $mp, 12 * $mp);
             imagecopy($preview, $skin, $mp_x_h + 4 * $mp, 0 * $mp, 56 * $mp, 8 * $mp, 8 * $mp, 8 * $mp);
+            
+            // body back
+            imagecopy($preview, $skin, $mp_x_h + 4 * $mp, 8 * $mp, 32 * $mp, 20 * $mp, 8 * $mp, 12 * $mp);
+            
+            // back arm
+           
+            // flip left arm for old skins
+            if ($info['ratio'] == 2) {
+                self::imageflip($preview, $skin, $mp_x_h + 0 * $mp, 8 * $mp, 52 * $mp, 20 * $mp, 4 * $mp, 12 * $mp);
+            } else {
+                imagecopy($preview, $skin, $mp_x_h + 0 * $mp, 8 * $mp, 44 * $mp, 52 * $mp, 4 * $mp, 12 * $mp);
+            }
+           
+            imagecopy($preview, $skin, $mp_x_h + 12 * $mp, 8 * $mp, 52 * $mp, 20 * $mp, 4 * $mp, 12 * $mp);
+            
+            // back leg
+            
+            // left
+            if ($info['ratio'] == 2) {
+                self::imageflip($preview, $skin, $mp_x_h + 4 * $mp, 20 * $mp, 12 * $mp, 20 * $mp, 4 * $mp, 12 * $mp);
+            } else {
+                imagecopy($preview, $skin, $mp_x_h + 4 * $mp, 20 * $mp, 28 * $mp, 52 * $mp, 4 * $mp, 12 * $mp);
+            }
+            
+            // right
+            imagecopy($preview, $skin, $mp_x_h + 8 * $mp, 20 * $mp, 12 * $mp, 20 * $mp, 4 * $mp, 12 * $mp);
+              
+            // addition attributes for new skins (v 1.8 >) 
+            if ($info['ratio'] == 1) {
+                // jaket
+                imagecopy($preview, $skin, $mp_x_h + 4 * $mp, 8 * $mp, 32 * $mp, 36 * $mp, 8 * $mp, 12 * $mp);
+                
+                // back arm decals right arm
+                imagecopy($preview, $skin, $mp_x_h + 12 * $mp, 8 * $mp, 52 * $mp, 20 * $mp, 4 * $mp, 12 * $mp);
+                // back arm decals left arm
+                imagecopy($preview, $skin, $mp_x_h + 0 * $mp, 8 * $mp, 60 * $mp, 52 * $mp, 4 * $mp, 12 * $mp);
+                
+                // back leg decals 2 right leg
+                imagecopy($preview, $skin, $mp_x_h + 8 * $mp, 20 * $mp, 12 * $mp, 36 * $mp, 4 * $mp, 12 * $mp); 
+                // back leg decals 2 left leg
+                imagecopy($preview, $skin, $mp_x_h + 4 * $mp, 20 * $mp, 12 * $mp, 52 * $mp, 4 * $mp, 12 * $mp);      
+            }           
         }
 
         if ($way_cloak and !$info = self::isValidCloak($way_cloak)) {
@@ -232,13 +309,19 @@ class SkinViewer2D
 
         if (!$imageSize = self::getImageSize($way_skin))
             return false;
-        if (round(self::SKIN_PROP, 2) != self::getRatio($imageSize))
-            return false;
+            
+            
+        for ($i = 0; $i < sizeof(self::$skinProps); $i++) {
+            if (round(self::$skinProps[$i]['ratio'], 2) != self::getRatio($imageSize))
+                continue;
 
-        return array(
-            'ratio' => self::getRatio($imageSize),
-            'scale' => self::getScale($imageSize, self::SKIN_BASE),
-        );
+            return array(
+                'ratio' => self::getRatio($imageSize),
+                'scale' => self::getScale($imageSize, self::$skinProps[$i]['base']),
+            );
+        }
+
+        return false;
     }
 
     /**
@@ -263,9 +346,12 @@ class SkinViewer2D
                 'scale' => self::getScale($imageSize, self::$cloakProps[$i]['base']),
             );
         }
+        
         return false;
     }
 
+    /* Коэфициэнт масштабирования относительно базового разрешения */
+    
     private static function getScale($inputImg, $size)
     {
         if (!is_array($inputImg) and !$inputImg = self::getImageSize($inputImg))
@@ -273,6 +359,7 @@ class SkinViewer2D
         return $inputImg[0] / $size;
     }
 
+    /* Коэфициэнт соотношения сторон */
     private static function getRatio($inputImg)
     {
         if (!is_array($inputImg) and !$inputImg = self::getImageSize($inputImg))

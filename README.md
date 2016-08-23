@@ -6,11 +6,13 @@ PHP class - viewer for minecraft skins; generate images of front \ rare \ head v
 Require GD module
 
  - **Author** : NC22
- - **Version** : 1.0
+ - **Version** : 1.2b
  
 ## Information
 
-Look 'selftest' dirrectory for examples. 
+Look 'selftest' dirrectory for examples.
+
+Support 64x64 skin format since version 1.2b 
  
 ## License 
 
