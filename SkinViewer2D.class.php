@@ -4,12 +4,18 @@
  * @package   webMCR
  * @author    Rubchuk Vladimir <torrenttvi@gmail.com>
  * @copyright 2013-2016 Rubchuk Vladimir
- * @version   1.2b
+ * @version   1.21b
  * @license   GPLv3
+ * 
+ * Special thanks to Official Minecraft Wiki
+ * Based on templates from 
+ * http://minecraft.gamepedia.com/Skin
  */
 
 class SkinViewer2D
 {
+    private static $slimDetectPixel = array(42, 51); // x,y 
+
     /* Допустимые пропорции образа */
 
     private static $skinProps = array(
@@ -81,6 +87,22 @@ class SkinViewer2D
         
         $transparent = imagecolorallocatealpha($preview, 255, 255, 255, 127);
         imagefill($preview, 0, 0, $transparent);
+        
+        $armWidth = 4; // for slim \ fat arms on version 1.8 or higher
+        $slim = false;
+        
+        if ($info['ratio'] == 1) {
+        
+            // is slim verion
+            
+            $color = imagecolorat($skin, self::$slimDetectPixel[0], self::$slimDetectPixel[1]); 
+            $colors = imagecolorsforindex($skin, $color); // returns rgba array
+            
+            if ((int) $colors['alpha'] == 127) {
+                $slim = true;
+                $armWidth = 3;
+            }
+        }
 
         if (!$side or $side === 'front') {
 
@@ -89,12 +111,15 @@ class SkinViewer2D
             imagecopy($preview, $skin, 4 * $mp, 0 * $mp, 40 * $mp, 8 * $mp, 8 * $mp, 8 * $mp);
             
             // front arms
-            imagecopy($preview, $skin, 0 * $mp, 8 * $mp, 44 * $mp, 20 * $mp, 4 * $mp, 12 * $mp);
             
+            imagecopy($preview, $skin, (4 - $armWidth) * $mp, 8 * $mp, 44 * $mp, 20 * $mp, $armWidth * $mp, 12 * $mp);
+            
+            // right side
             if ($info['ratio'] == 2) {
                 self::imageflip($preview, $skin, 12 * $mp, 8 * $mp, 44 * $mp, 20 * $mp, 4 * $mp, 12 * $mp);
             } else {
-                imagecopy($preview, $skin, 12 * $mp, 8 * $mp, 36 * $mp, 52 * $mp, 4 * $mp, 12 * $mp);
+                // body (8) + arm(4)
+                imagecopy($preview, $skin, 12 * $mp, 8 * $mp, 36 * $mp, 52 * $mp, $armWidth * $mp, 12 * $mp);
             }
             
             // body
@@ -111,12 +136,12 @@ class SkinViewer2D
             
             if ($info['ratio'] == 1) {
                 // front arms layer 2 right
-                imagecopy($preview, $skin, 0 * $mp, 8 * $mp, 44 * $mp, 36 * $mp, 4 * $mp, 12 * $mp);
+                imagecopy($preview, $skin, (4 - $armWidth) * $mp, 8 * $mp, 44 * $mp, 36 * $mp, $armWidth * $mp, 12 * $mp);
                 // left
-                imagecopy($preview, $skin, 12 * $mp, 8 * $mp, 52 * $mp, 52 * $mp, 4 * $mp, 12 * $mp);
+                imagecopy($preview, $skin, 12 * $mp, 8 * $mp, 52 * $mp, 52 * $mp, $armWidth * $mp, 12 * $mp);
                 
                 // jacket
-                imagecopy($preview, $skin, 4 * $mp, 8 * $mp, 20 * $mp, 20 * $mp, 8 * $mp, 12 * $mp);
+                imagecopy($preview, $skin, 4 * $mp, 8 * $mp, 20 * $mp, 36 * $mp, 8 * $mp, 12 * $mp);
                 
                 // front legs right leg layer 2 
                 imagecopy($preview, $skin, 4 * $mp, 20 * $mp, 4 * $mp, 36 * $mp, 4 * $mp, 12 * $mp);    
@@ -127,7 +152,14 @@ class SkinViewer2D
         }
         if (!$side or $side === 'back') {
         
-            $mp_x_h = ($side) ? 0 : imagesx($preview) / 2;    
+            $mp_x_h = ($side) ? 0 : imagesx($preview) / 2; // base padding left on output canvas, if render both sides on the same image
+            $backArmPos = ($armWidth * 2);
+            
+            // front side of arm have width 3, but back still able have width 4, so skip pixels at begining
+            
+            if ($armWidth < 4) {
+                $backArmPos += 4 - $armWidth; 
+            }
             
             // head
             imagecopy($preview, $skin, $mp_x_h + 4 * $mp, 0 * $mp, 24 * $mp, 8 * $mp, 8 * $mp, 8 * $mp);
@@ -136,17 +168,18 @@ class SkinViewer2D
             // body back
             imagecopy($preview, $skin, $mp_x_h + 4 * $mp, 8 * $mp, 32 * $mp, 20 * $mp, 8 * $mp, 12 * $mp);
             
-            // back arm
-           
+            // back arm, calc from start right arm zone base on arm width
+                      
+            imagecopy($preview, $skin, $mp_x_h + 12 * $mp, 8 * $mp, (44 + $backArmPos) * $mp, 20 * $mp, $armWidth * $mp, 12 * $mp);
+            
             // flip left arm for old skins
+            
             if ($info['ratio'] == 2) {
                 self::imageflip($preview, $skin, $mp_x_h + 0 * $mp, 8 * $mp, 52 * $mp, 20 * $mp, 4 * $mp, 12 * $mp);
             } else {
-                imagecopy($preview, $skin, $mp_x_h + 0 * $mp, 8 * $mp, 44 * $mp, 52 * $mp, 4 * $mp, 12 * $mp);
-            }
-           
-            imagecopy($preview, $skin, $mp_x_h + 12 * $mp, 8 * $mp, 52 * $mp, 20 * $mp, 4 * $mp, 12 * $mp);
-            
+                imagecopy($preview, $skin, $mp_x_h + (4 - $armWidth) * $mp, 8 * $mp, (36 + $backArmPos) * $mp, 52 * $mp, $armWidth * $mp, 12 * $mp);
+            }    
+                        
             // back leg
             
             // left
@@ -165,9 +198,9 @@ class SkinViewer2D
                 imagecopy($preview, $skin, $mp_x_h + 4 * $mp, 8 * $mp, 32 * $mp, 36 * $mp, 8 * $mp, 12 * $mp);
                 
                 // back arm decals right arm
-                imagecopy($preview, $skin, $mp_x_h + 12 * $mp, 8 * $mp, 52 * $mp, 20 * $mp, 4 * $mp, 12 * $mp);
+                imagecopy($preview, $skin, $mp_x_h + 12 * $mp, 8 * $mp, (44 + $backArmPos) * $mp, 20 * $mp, $armWidth * $mp, 12 * $mp);
                 // back arm decals left arm
-                imagecopy($preview, $skin, $mp_x_h + 0 * $mp, 8 * $mp, 60 * $mp, 52 * $mp, 4 * $mp, 12 * $mp);
+                imagecopy($preview, $skin, $mp_x_h + (4 - $armWidth) * $mp, 8 * $mp, (52 + $backArmPos)  * $mp, 52 * $mp, $armWidth * $mp, 12 * $mp);
                 
                 // back leg decals 2 right leg
                 imagecopy($preview, $skin, $mp_x_h + 8 * $mp, 20 * $mp, 12 * $mp, 36 * $mp, 4 * $mp, 12 * $mp); 
