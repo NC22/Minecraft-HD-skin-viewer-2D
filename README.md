@@ -13,6 +13,7 @@ Require GD module
 Look 'selftest' dirrectory for examples.
 
 Support 64x64 skin format since version 1.2b 
+
 Support "slimmer arms" feature since version 1.21b
  
 ## License 
