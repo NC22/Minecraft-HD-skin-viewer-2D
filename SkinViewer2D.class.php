@@ -198,7 +198,7 @@ class SkinViewer2D
                 imagecopy($preview, $skin, $mp_x_h + 4 * $mp, 8 * $mp, 32 * $mp, 36 * $mp, 8 * $mp, 12 * $mp);
                 
                 // back arm decals right arm
-                imagecopy($preview, $skin, $mp_x_h + 12 * $mp, 8 * $mp, (44 + $backArmPos) * $mp, 20 * $mp, $armWidth * $mp, 12 * $mp);
+                imagecopy($preview, $skin, $mp_x_h + 12 * $mp, 8 * $mp, (44 + $backArmPos) * $mp, 36 * $mp, $armWidth * $mp, 12 * $mp);
                 // back arm decals left arm
                 imagecopy($preview, $skin, $mp_x_h + (4 - $armWidth) * $mp, 8 * $mp, (52 + $backArmPos)  * $mp, 52 * $mp, $armWidth * $mp, 12 * $mp);
                 
